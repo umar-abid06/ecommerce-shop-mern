@@ -19,7 +19,6 @@ const api = axios.create({
 export const fetchProducts = async () => {
   try {
     const response = await api.get(`${path}/${getProducts}`);
-    console.log(response);
     if (response.data.length) {
       return response.data;
     }
@@ -31,8 +30,17 @@ export const fetchProducts = async () => {
 export const fetchProductById = async (id) => {
   try {
     const response = await api.get(`${path}/${getSingleProduct}/${id}`);
-    console.log(response);
     return response.data;
+  } catch (error) {
+    return error.response.data;
+  }
+};
+export const fetchProduct = async (params) => {
+  const { id, qty } = params;
+  try {
+    const response = await api.get(`${path}/${getSingleProduct}/${id}`);
+    console.log({ ...response.data, qty });
+    return { ...response.data, qty };
   } catch (error) {
     return error.response.data;
   }

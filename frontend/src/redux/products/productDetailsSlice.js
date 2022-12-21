@@ -12,7 +12,7 @@ const initialState = {
 //createAsyncThunk already generates pending, fulfilled and rejected action types
 
 export const fetchSingleProduct = createAsyncThunk(
-  "products/getProductById",
+  "getProductById",
   fetchProductById
 );
 const productDetailsSlice = createSlice({

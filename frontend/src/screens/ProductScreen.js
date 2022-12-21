@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   Row,
@@ -8,9 +8,10 @@ import {
   ListGroupItem,
   Card,
   Button,
+  FormControl,
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
@@ -21,6 +22,8 @@ import {
 } from "../redux/products/productDetailsSlice";
 
 const ProductScreen = () => {
+  const [qty, setQty] = useState(1);
+
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -37,9 +40,14 @@ const ProductScreen = () => {
     dispatch(fetchSingleProduct(id));
   }, [dispatch, id]);
 
+  const addToChartHandler = () => {
+    if (qty != 0) {
+      navigate(`/cart/${id}?qty=${qty}`);
+    }
+  };
+
   return (
     <>
-      <Header />
       <Container>
         <Col className="btn btn-light my-3" onClick={handleGoBack}>
           Go Back
@@ -96,9 +104,38 @@ const ProductScreen = () => {
                         </Col>
                       </Row>
                     </ListGroupItem>
+
+                    {product?.countInStock > 0 && (
+                      <ListGroupItem>
+                        <Row>
+                          <Col>Qty</Col>
+                          <Col>
+                            <FormControl
+                              as="select"
+                              value={qty}
+                              onChange={(e) => setQty(e.target.value)}
+                            >
+                              {[...Array(product?.countInStock).keys()].map(
+                                (x) => (
+                                  <option key={x + 1} value={x + 1}>
+                                    {x + 1}
+                                  </option>
+                                )
+                              )}
+                            </FormControl>
+                          </Col>
+                        </Row>
+                      </ListGroupItem>
+                    )}
+
                     <ListGroupItem>
                       <Row className="mx-auto ">
-                        <Button>Add To Cart</Button>
+                        <Button
+                          disabled={product?.countInStock === 0 || qty === 0}
+                          onClick={addToChartHandler}
+                        >
+                          Add To Cart
+                        </Button>
                       </Row>
                     </ListGroupItem>
                   </ListGroup>
