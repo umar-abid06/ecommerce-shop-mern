@@ -1,10 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchProduct } from "../../api";
+import { fetchProduct } from "../../api/api";
 
 const initialState = {
   cartItems: localStorage.getItem("cartItems")
     ? JSON.parse(localStorage.getItem("cartItems"))
     : [],
+  shippingDetails: localStorage.getItem("shippingDetails")
+    ? JSON.parse(localStorage.getItem("shippingDetails"))
+    : null,
+  paymentMethod: localStorage.getItem("paymentMethod")
+    ? JSON.parse(localStorage.getItem("paymentMethod"))
+    : null,
   isLoading: false,
   isSuccess: false,
   error: "",
@@ -19,6 +25,20 @@ const cartSlice = createSlice({
     removeFromCart: (state, { payload }) => {
       state.cartItems = state.cartItems.filter((x) => x._id !== payload);
       localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+    },
+    saveShippingDetails: (state, { payload }) => {
+      state.shippingDetails = payload;
+      localStorage.setItem(
+        "shippingDetails",
+        JSON.stringify(state.shippingDetails)
+      );
+    },
+    savePaymentMethod: (state, { payload }) => {
+      state.paymentMethod = payload;
+      localStorage.setItem(
+        "paymentMethod",
+        JSON.stringify(state.paymentMethod)
+      );
     },
   },
   extraReducers: {
@@ -52,5 +72,6 @@ const cartSlice = createSlice({
   },
 });
 
-export const { removeFromCart } = cartSlice.actions;
+export const { removeFromCart, saveShippingDetails, savePaymentMethod } =
+  cartSlice.actions;
 export default cartSlice.reducer;

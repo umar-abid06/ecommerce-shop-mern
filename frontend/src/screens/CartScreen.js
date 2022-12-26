@@ -13,20 +13,17 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigation } from "react-router-dom";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Message from "../components/Message";
 
-import {
-  addToCart,
-  fetchSingleProduct,
-  removeFromCart,
-} from "../redux/cart/cartSlice";
+import { addToCart, removeFromCart } from "../redux/cart/cartSlice";
 
 const CartScreen = () => {
   const { id } = useParams();
   const location = useLocation();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { cartItems, isLoading, error } = useSelector((state) => state.cart);
 
   const qty = location.search ? Number(location.search.split("=")[1]) : 1;
@@ -41,7 +38,9 @@ const CartScreen = () => {
     dispatch(removeFromCart(id));
   };
 
-  const checkoutHandler = () => {};
+  const checkoutHandler = () => {
+    navigate("/shipping");
+  };
 
   return (
     <Stack direction="horizontal" gap={3} className=" align-items-start">
@@ -54,7 +53,7 @@ const CartScreen = () => {
         ) : (
           <ListGroup variant="flush">
             {cartItems?.map((item) => (
-              <ListGroupItem key={item._id} variant="dark">
+              <ListGroupItem key={item._id}>
                 <Row className="align-items-center justify-content-center">
                   <Col md={2}>
                     <Image src={item.image} alt={item.name} fluid rounded />
@@ -96,35 +95,37 @@ const CartScreen = () => {
           </ListGroup>
         )}
       </Row>
-      <Row md={12}>
-        <Col style={{ marginTop: "80px", width: "280px" }}>
-          <Card>
-            <ListGroup variant="flush">
-              <ListGroupItem>
-                <h4>
-                  Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)}
-                  ) items
-                </h4>
-                $
-                {cartItems
-                  .reduce((acc, item) => acc + item.price * item.qty, 0)
-                  .toFixed(2)}
-              </ListGroupItem>
-              <ListGroupItem>
-                <Row className="mx-auto">
-                  <Button
-                    type="button"
-                    disabled={cartItems?.length === 0}
-                    onClick={checkoutHandler}
-                  >
-                    Proceed To Checkout
-                  </Button>
-                </Row>
-              </ListGroupItem>
-            </ListGroup>
-          </Card>
-        </Col>
-      </Row>
+      {cartItems?.length > 0 ? (
+        <Row md={12}>
+          <Col style={{ marginTop: "80px", width: "280px" }}>
+            <Card>
+              <ListGroup variant="flush">
+                <ListGroupItem>
+                  <h4>
+                    Subtotal (
+                    {cartItems.reduce((acc, item) => acc + item.qty, 0)}) items
+                  </h4>
+                  $
+                  {cartItems
+                    .reduce((acc, item) => acc + item.price * item.qty, 0)
+                    .toFixed(2)}
+                </ListGroupItem>
+                <ListGroupItem>
+                  <Row className="mx-auto">
+                    <Button
+                      type="button"
+                      disabled={cartItems?.length === 0}
+                      onClick={checkoutHandler}
+                    >
+                      Proceed To Checkout
+                    </Button>
+                  </Row>
+                </ListGroupItem>
+              </ListGroup>
+            </Card>
+          </Col>
+        </Row>
+      ) : null}
     </Stack>
   );
 };
