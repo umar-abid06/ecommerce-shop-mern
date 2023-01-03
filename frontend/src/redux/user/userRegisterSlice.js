@@ -25,11 +25,6 @@ const userRegisterSlice = createSlice({
       state.isLoading = false;
       state.isError = false;
       state.errorMessage = "";
-
-      //   localStorage.setItem(
-      //     "registeredUserEmail",
-      //     JSON.stringify(state.registeredUser)
-      //   );
     },
     [userSignup.rejected]: (state, { payload }) => {
       state.isSuccess = false;

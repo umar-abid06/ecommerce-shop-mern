@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -8,24 +8,33 @@ import {
   ListGroupItem,
   Row,
 } from "react-bootstrap";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import CheckoutSteps from "../components/CheckoutSteps";
 import Message from "../components/Message";
+import { orderCreate } from "../redux/order/orderSlice";
 
 const PlaceOrderScreen = () => {
+  const [orderDetails, setOrderDetails] = useState();
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const cart = useSelector((state) => state.cart);
-  console.log(cart);
+  const { order, isSuccess, isError, errorMessage, isLoading } = useSelector(
+    (state) => state.orderCreate
+  );
+
   //Calculate Prices
 
   const addDecimals = (num) => {
     return (Math.round(num * 100) / 100).toFixed(2);
   };
   const itemsPrice = addDecimals(
-    cart.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0)
+    Number(cart.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0))
   );
 
-  const shippingPrice = addDecimals(itemsPrice > 500 ? 0 : 50);
+  const shippingPrice = addDecimals(Number(itemsPrice > 500 ? 0 : 50));
 
   const taxPrice = addDecimals(Number((0.17 * itemsPrice).toFixed(2)));
 
@@ -33,9 +42,30 @@ const PlaceOrderScreen = () => {
     Number(itemsPrice) + Number(shippingPrice) + Number(taxPrice)
   );
 
+  useEffect(() => {
+    setOrderDetails((prev) => ({
+      ...prev,
+      orderItems: cart.cartItems,
+      shippingAddress: cart.shippingDetails,
+      paymentMethod: cart.paymentMethod,
+      itemsPrice: Number(itemsPrice),
+      shippingPrice: Number(shippingPrice),
+      taxPrice: Number(taxPrice),
+      totalPrice: Number(totalPrice),
+    }));
+  }, []);
+
   const placeOrderHandler = () => {
-    console.log("order");
+    if (cart?.cartItems.length !== 0) {
+      dispatch(orderCreate(orderDetails));
+    }
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      navigate(`order/${order?._id}`);
+    }
+  }, [navigate, order?._id]);
 
   return (
     <>
@@ -91,49 +121,60 @@ const PlaceOrderScreen = () => {
         </Col>
         <Col>
           <Card>
-            <ListGroup variant="flush">
-              <ListGroupItem>
-                <h2>Order Summary</h2>
-              </ListGroupItem>
-              <ListGroupItem>
-                <Row>
-                  <Col>Items</Col>
-                  <Col>${itemsPrice}</Col>
-                </Row>
-              </ListGroupItem>
+            {cart?.cartItems.length === 0 ? (
+              <Message variant={"danger"}>
+                Your Cart Is Empty! Kindly add something in the Cart
+              </Message>
+            ) : (
+              <ListGroup variant="flush">
+                <ListGroupItem>
+                  <h2>Order Summary</h2>
+                </ListGroupItem>
+                <ListGroupItem>
+                  <Row>
+                    <Col>Items</Col>
+                    <Col>${itemsPrice}</Col>
+                  </Row>
+                </ListGroupItem>
 
-              <ListGroupItem>
-                <Row>
-                  <Col>Shipping</Col>
-                  <Col>${shippingPrice}</Col>
-                </Row>
-              </ListGroupItem>
+                <ListGroupItem>
+                  <Row>
+                    <Col>Shipping</Col>
+                    <Col>${shippingPrice}</Col>
+                  </Row>
+                </ListGroupItem>
 
-              <ListGroupItem>
-                <Row>
-                  <Col>Tax</Col>
-                  <Col>${taxPrice}</Col>
-                </Row>
-              </ListGroupItem>
+                <ListGroupItem>
+                  <Row>
+                    <Col>Tax</Col>
+                    <Col>${taxPrice}</Col>
+                  </Row>
+                </ListGroupItem>
 
-              <ListGroupItem>
-                <Row>
-                  <Col>Total</Col>
-                  <Col>${totalPrice}</Col>
-                </Row>
-              </ListGroupItem>
-              <ListGroupItem>
-                <Row>
-                  <Button
-                    type="button"
-                    disabled={cart?.cartItems === 0}
-                    onClick={placeOrderHandler}
-                  >
-                    Place Order
-                  </Button>
-                </Row>
-              </ListGroupItem>
-            </ListGroup>
+                <ListGroupItem>
+                  <Row>
+                    <Col>Total</Col>
+                    <Col>${totalPrice}</Col>
+                  </Row>
+                </ListGroupItem>
+                <ListGroupItem>
+                  {order?.message && (
+                    <Message variant={"danger"}>{order?.message}</Message>
+                  )}
+                </ListGroupItem>
+                <ListGroupItem>
+                  <Row>
+                    <Button
+                      type="button"
+                      disabled={cart?.cartItems === 0}
+                      onClick={placeOrderHandler}
+                    >
+                      Place Order
+                    </Button>
+                  </Row>
+                </ListGroupItem>
+              </ListGroup>
+            )}
           </Card>
         </Col>
       </Row>

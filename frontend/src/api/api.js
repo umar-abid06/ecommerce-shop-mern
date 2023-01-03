@@ -8,7 +8,7 @@ import {
   userLogin,
   userProfile,
   userRegistration,
-  userProfileUpdate,
+  createOrder,
 } from "../constants/constants";
 
 const api = axios.create({
@@ -69,7 +69,7 @@ const findToken = () => {
   var { token } = localStorage.getItem("loggedInUser")
     ? JSON.parse(localStorage.getItem("loggedInUser"))
     : "";
-  console.log(token);
+  // console.log(token);
   return token;
 };
 // const config = {
@@ -97,6 +97,22 @@ export const updateUserProfile = async (payload) => {
   let token = findToken();
   try {
     const { data } = await api.put(`${path}/${userProfile}`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token ? token : ""}`,
+      },
+    });
+
+    return data;
+  } catch (error) {
+    return error.response.data;
+  }
+};
+
+export const httpCreateOrder = async (payload) => {
+  let token = findToken();
+  try {
+    const { data } = await api.post(`${path}/${createOrder}`, payload, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token ? token : ""}`,

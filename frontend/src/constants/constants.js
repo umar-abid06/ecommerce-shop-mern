@@ -1,10 +1,17 @@
 const baseURL = "http://localhost:5000";
 const path = "/api/v1";
+
+// products
 const getProducts = "/products";
 const getSingleProduct = "/products";
-const userLogin = "/users/login";
+
+//users
 const userRegistration = "/users";
+const userLogin = "/users/login";
 const userProfile = "/users/profile";
+
+//orders
+const createOrder = "/orders";
 
 export {
   baseURL,
@@ -14,4 +21,5 @@ export {
   userLogin,
   userProfile,
   userRegistration,
+  createOrder,
 };
