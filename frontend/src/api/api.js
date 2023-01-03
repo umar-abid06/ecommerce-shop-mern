@@ -9,6 +9,7 @@ import {
   userProfile,
   userRegistration,
   createOrder,
+  getOrder,
 } from "../constants/constants";
 
 const api = axios.create({
@@ -115,6 +116,20 @@ export const httpCreateOrder = async (payload) => {
     const { data } = await api.post(`${path}/${createOrder}`, payload, {
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token ? token : ""}`,
+      },
+    });
+
+    return data;
+  } catch (error) {
+    return error.response.data;
+  }
+};
+export const httpGetOrder = async (id) => {
+  let token = findToken();
+  try {
+    const { data } = await api.get(`${path}/${getOrder}/${id}`, {
+      headers: {
         Authorization: `Bearer ${token ? token : ""}`,
       },
     });

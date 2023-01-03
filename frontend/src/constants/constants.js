@@ -12,6 +12,7 @@ const userProfile = "/users/profile";
 
 //orders
 const createOrder = "/orders";
+const getOrder = "/orders";
 
 export {
   baseURL,
@@ -22,4 +23,5 @@ export {
   userProfile,
   userRegistration,
   createOrder,
+  getOrder,
 };
